@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz — SIP Portal</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="quiz">
+<div class="bg-mesh"></div><div class="bg-dots"></div>
+
+<nav class="navbar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="menu-btn" id="menuBtn">☰</button>
+    <a href="index.html" class="nav-brand">SIP<span>Portal</span></a>
+  </div>
+  <div class="nav-links">
+    <span id="quizTopicTitle" style="font-size:0.9rem;color:var(--text-muted)"></span>
+    <a href="topics.html" class="btn btn-ghost btn-sm">← Topics</a>
+  </div>
+</nav>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">U</div>
+      <div class="sidebar-username">Loading...</div>
+      <div class="sidebar-role">Interview Candidate</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Main</div>
+      <a href="dashboard.html" class="sidebar-link"><div class="icon">🏠</div>Dashboard</a>
+      <a href="topics.html" class="sidebar-link"><div class="icon">📚</div>Topics</a>
+      <a href="results.html" class="sidebar-link"><div class="icon">📊</div>My Results</a>
+      <div class="sidebar-section">Topics</div>
+      <a href="quiz.html?topic=html&mode=interview" class="sidebar-link"><div class="icon">🌐</div>HTML</a>
+      <a href="quiz.html?topic=css&mode=interview" class="sidebar-link"><div class="icon">🎨</div>CSS</a>
+      <a href="quiz.html?topic=javascript&mode=interview" class="sidebar-link"><div class="icon">⚡</div>JavaScript</a>
+      <a href="quiz.html?topic=dsa&mode=interview" class="sidebar-link"><div class="icon">🌳</div>Data Structures</a>
+      <a href="quiz.html?topic=aptitude&mode=interview" class="sidebar-link"><div class="icon">🧠</div>Aptitude</a>
+      <a href="quiz.html?topic=hr&mode=interview" class="sidebar-link"><div class="icon">👔</div>HR Interview</a>
+      <div class="sidebar-section">Account</div>
+      <div class="sidebar-link" onclick="logout()"><div class="icon">🚪</div>Sign Out</div>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <!-- Quiz Mode UI -->
+    <div class="quiz-wrapper" id="quizModeUI">
+      <div class="quiz-header" id="timerSection">
+        <div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px" id="quizModeLabel">Quiz Mode</div>
+          <div class="quiz-progress-info">Question <strong id="progressText">1 / 10</strong></div>
+        </div>
+        <div class="quiz-timer"><div class="pulse"></div><span id="quizTimer">05:00</span></div>
+      </div>
+
+      <div class="progress-wrap" style="margin-bottom:28px">
+        <div class="progress-bar" id="quizProgressBar" style="width:0%"></div>
+      </div>
+
+      <!-- Dynamic container for both quiz and interview modes -->
+      <div id="quizContainer">
+        <div class="glass-card quiz-card">
+          <div class="quiz-question-num" id="questionNum">Question 1 of 10</div>
+          <div class="quiz-question-text" id="questionText">Loading...</div>
+          <ul class="options-list" id="optionsList"></ul>
+        </div>
+        <div class="quiz-actions">
+          <a href="topics.html" class="btn btn-ghost">← Exit Quiz</a>
+          <button class="btn btn-primary" id="nextBtn">Next →</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/questions.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>

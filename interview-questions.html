@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interview Questions – InterviewPrep</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="bg-mesh"></div>
+  <div class="bg-grid"></div>
+
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <div class="dashboard-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-logo">🎯</div>
+        <span class="sidebar-title">InterviewPrep</span>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Main</div>
+        <ul class="sidebar-nav">
+          <li><a href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a></li>
+          <li><a href="topics.html" class="active"><span class="nav-icon">📚</span> Topics</a></li>
+        </ul>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Practice</div>
+        <ul class="sidebar-nav">
+          <li><a href="topics.html?mode=questions"><span class="nav-icon">❓</span> Interview Q&A</a></li>
+          <li><a href="topics.html?mode=quiz"><span class="nav-icon">🧩</span> Take Quiz</a></li>
+        </ul>
+      </div>
+      <div class="sidebar-section" style="margin-top:auto;">
+        <ul class="sidebar-nav">
+          <li><button onclick="logout()"><span class="nav-icon">🚪</span> Logout</button></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <button class="menu-toggle" id="menuBtn" onclick="toggleSidebar()" style="display:none;">☰</button>
+
+      <div style="margin-bottom:1rem;">
+        <a href="topics.html?mode=questions" class="btn btn-secondary btn-sm">← Back to Topics</a>
+      </div>
+
+      <div class="questions-page-header anim-fade-up">
+        <div class="questions-topic-icon" id="topic-icon">📝</div>
+        <div class="questions-topic-info">
+          <h1 id="topic-title">Interview Questions</h1>
+          <p id="topic-desc">Loading...</p>
+        </div>
+        <div style="margin-left:auto;">
+          <a id="quiz-link" href="#" class="btn btn-primary">Take Quiz →</a>
+        </div>
+      </div>
+
+      <!-- SEARCH -->
+      <div class="form-group anim-fade-up" style="max-width:400px; margin-bottom:1.5rem;">
+        <div class="input-icon">
+          <span class="icon">🔍</span>
+          <input type="text" class="form-input" id="search-input" placeholder="Search questions..." oninput="filterQuestions()">
+        </div>
+      </div>
+
+      <div class="question-accordion anim-fade-up" id="questions-list"></div>
+
+      <div style="text-align:center; margin-top:2rem;" id="bottom-cta"></div>
+    </main>
+  </div>
+
+  <script src="js/questions.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    if (!requireAuth()) throw 'not auth';
+
+    const topic = new URLSearchParams(location.search).get('topic');
+    const data = interviewData[topic];
+
+    if (!data) {
+      window.location.href = 'topics.html?mode=questions';
+    } else {
+      document.title = `${data.title} Questions – InterviewPrep`;
+      document.getElementById('topic-icon').textContent = data.icon;
+      document.getElementById('topic-title').textContent = data.title + ' Interview Questions';
+      document.getElementById('topic-desc').textContent = data.description;
+      document.getElementById('quiz-link').href = `quiz.html?topic=${topic}`;
+
+      renderQuestions(data.questions);
+
+      document.getElementById('bottom-cta').innerHTML = `
+        <p style="color:var(--text-secondary);margin-bottom:1rem;">Ready to test your knowledge?</p>
+        <a href="quiz.html?topic=${topic}" class="btn btn-primary btn-lg">🧩 Take ${data.title} Quiz →</a>
+      `;
+    }
+
+    function renderQuestions(questions) {
+      const el = document.getElementById('questions-list');
+      el.innerHTML = questions.map((q, i) => `
+        <div class="q-item" id="q-${i}">
+          <div class="q-header" onclick="toggleQ(${i})">
+            <div class="q-number">${i+1}</div>
+            <div style="flex:1;">${q.q}</div>
+            <div class="q-toggle">▾</div>
+          </div>
+          <div class="q-answer">
+            <div style="display:flex;gap:0.5rem;align-items:flex-start;">
+              <span style="color:var(--accent-green);font-size:1.1rem;margin-top:0.1rem;">✓</span>
+              <div>${q.a}</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleQ(i) {
+      const item = document.getElementById(`q-${i}`);
+      item.classList.toggle('open');
+    }
+
+    function filterQuestions() {
+      const val = document.getElementById('search-input').value.toLowerCase();
+      if (!val) { renderQuestions(data.questions); return; }
+      const filtered = data.questions.filter(q => q.q.toLowerCase().includes(val) || q.a.toLowerCase().includes(val));
+      renderQuestions(filtered);
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('overlay').classList.toggle('visible');
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('overlay').classList.remove('visible');
+    }
+    if (window.innerWidth <= 768) document.getElementById('menuBtn').style.display = 'flex';
+    window.addEventListener('resize', () => {
+      document.getElementById('menuBtn').style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+    });
+  </script>
+</body>
+</html>

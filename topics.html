@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topics — SIP Portal</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="topics">
+<div class="bg-mesh"></div><div class="bg-dots"></div>
+
+<nav class="navbar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="menu-btn" id="menuBtn">☰</button>
+    <a href="index.html" class="nav-brand">SIP<span>Portal</span></a>
+  </div>
+  <div class="nav-links">
+    <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
+  </div>
+</nav>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">U</div>
+      <div class="sidebar-username">Loading...</div>
+      <div class="sidebar-role">Interview Candidate</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Main</div>
+      <a href="dashboard.html" class="sidebar-link"><div class="icon">🏠</div>Dashboard</a>
+      <a href="topics.html" class="sidebar-link active"><div class="icon">📚</div>Topics</a>
+      <a href="results.html" class="sidebar-link"><div class="icon">📊</div>My Results</a>
+      <div class="sidebar-section">Topics</div>
+      <a href="quiz.html?topic=html&mode=interview" class="sidebar-link"><div class="icon">🌐</div>HTML</a>
+      <a href="quiz.html?topic=css&mode=interview" class="sidebar-link"><div class="icon">🎨</div>CSS</a>
+      <a href="quiz.html?topic=javascript&mode=interview" class="sidebar-link"><div class="icon">⚡</div>JavaScript</a>
+      <a href="quiz.html?topic=dsa&mode=interview" class="sidebar-link"><div class="icon">🌳</div>Data Structures</a>
+      <a href="quiz.html?topic=aptitude&mode=interview" class="sidebar-link"><div class="icon">🧠</div>Aptitude</a>
+      <a href="quiz.html?topic=hr&mode=interview" class="sidebar-link"><div class="icon">👔</div>HR Interview</a>
+      <div class="sidebar-section">Account</div>
+      <div class="sidebar-link" onclick="logout()"><div class="icon">🚪</div>Sign Out</div>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="section-header fade-up">
+      <h1 class="section-title">Choose a <span>Topic</span></h1>
+      <p class="section-subtitle">Select a topic to study interview questions or take a timed quiz.</p>
+    </div>
+    <div class="topics-grid" id="topicsGrid">
+      <div style="color:var(--text-muted);padding:40px">Loading topics...</div>
+    </div>
+  </main>
+</div>
+
+<script src="js/questions.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>

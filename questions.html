@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Questions — InterviewPro</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="questions">
+<div class="bg-mesh"><div class="bg-orb3"></div></div>
+<nav class="navbar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="hamburger" id="hamburger">☰</button>
+    <a href="index.html" class="nav-logo">⚡ InterviewPro</a>
+  </div>
+  <div class="nav-links">
+    <a href="dashboard.html" class="nav-link">Dashboard</a>
+    <button onclick="logout()" class="nav-btn" style="background:rgba(255,255,255,0.08);color:var(--text-primary)">Sign Out</button>
+  </div>
+</nav>
+<div class="overlay" id="overlay"></div>
+<div class="dashboard-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebarAvatar">U</div>
+      <div class="user-info">
+        <div class="user-name" id="sidebarName">User</div>
+        <div class="user-role">Interview Candidate</div>
+      </div>
+    </div>
+    <ul class="sidebar-nav">
+      <li><div class="sidebar-section-title">Navigation</div></li>
+      <li><a href="dashboard.html" class="sidebar-link"><span class="s-icon">🏠</span> Dashboard</a></li>
+      <li><a href="topics.html" class="sidebar-link"><span class="s-icon">📚</span> Topics</a></li>
+      <div class="sidebar-section-title">Categories</div>
+      <li><a href="questions.html?topic=html" class="sidebar-link"><span class="s-icon">🌐</span> HTML</a></li>
+      <li><a href="questions.html?topic=css" class="sidebar-link"><span class="s-icon">🎨</span> CSS</a></li>
+      <li><a href="questions.html?topic=javascript" class="sidebar-link"><span class="s-icon">⚡</span> JavaScript</a></li>
+      <li><a href="questions.html?topic=dsa" class="sidebar-link"><span class="s-icon">🧮</span> Data Structures</a></li>
+      <li><a href="questions.html?topic=aptitude" class="sidebar-link"><span class="s-icon">🧠</span> Aptitude</a></li>
+      <li><a href="questions.html?topic=hr" class="sidebar-link"><span class="s-icon">🤝</span> HR Interview</a></li>
+      <div class="sidebar-section-title">Account</div>
+      <li><button onclick="logout()" class="sidebar-link"><span class="s-icon">🚪</span> Sign Out</button></li>
+    </ul>
+  </aside>
+  <main class="main-content">
+    <div class="questions-header fade-in">
+      <a href="topics.html" class="back-btn">← Back</a>
+      <h1 id="pageTitle" style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;flex:1"></h1>
+      <a id="quizLink" href="#" class="btn-primary" style="border-radius:50px;padding:12px 24px;font-size:0.9rem">⚡ Take Quiz</a>
+    </div>
+    <div id="questionsContainer" class="fade-in-2"></div>
+  </main>
+</div>
+<script src="js/questions.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>

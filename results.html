@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Results — SIP Portal</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="results">
+<div class="bg-mesh"></div><div class="bg-dots"></div>
+
+<nav class="navbar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="menu-btn" id="menuBtn">☰</button>
+    <a href="index.html" class="nav-brand">SIP<span>Portal</span></a>
+  </div>
+  <div class="nav-links">
+    <a href="topics.html" class="btn btn-ghost btn-sm">Practice More</a>
+  </div>
+</nav>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">U</div>
+      <div class="sidebar-username">Loading...</div>
+      <div class="sidebar-role">Interview Candidate</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Main</div>
+      <a href="dashboard.html" class="sidebar-link"><div class="icon">🏠</div>Dashboard</a>
+      <a href="topics.html" class="sidebar-link"><div class="icon">📚</div>Topics</a>
+      <a href="results.html" class="sidebar-link active"><div class="icon">📊</div>My Results</a>
+      <div class="sidebar-section">Topics</div>
+      <a href="quiz.html?topic=html&mode=interview" class="sidebar-link"><div class="icon">🌐</div>HTML</a>
+      <a href="quiz.html?topic=css&mode=interview" class="sidebar-link"><div class="icon">🎨</div>CSS</a>
+      <a href="quiz.html?topic=javascript&mode=interview" class="sidebar-link"><div class="icon">⚡</div>JavaScript</a>
+      <a href="quiz.html?topic=dsa&mode=interview" class="sidebar-link"><div class="icon">🌳</div>Data Structures</a>
+      <a href="quiz.html?topic=aptitude&mode=interview" class="sidebar-link"><div class="icon">🧠</div>Aptitude</a>
+      <a href="quiz.html?topic=hr&mode=interview" class="sidebar-link"><div class="icon">👔</div>HR Interview</a>
+      <div class="sidebar-section">Account</div>
+      <div class="sidebar-link" onclick="logout()"><div class="icon">🚪</div>Sign Out</div>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <!-- Last Result Section -->
+    <div id="lastResultSection">
+      <div class="results-wrapper fade-up">
+        <div class="section-header" style="text-align:center">
+          <h1 class="section-title">Quiz <span>Results</span></h1>
+          <p class="section-subtitle" id="resultTopicName">JavaScript</p>
+        </div>
+
+        <!-- Score Ring -->
+        <div class="score-ring-wrap">
+          <svg viewBox="0 0 160 160">
+            <defs>
+              <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#6c63ff"/>
+                <stop offset="100%" style="stop-color:#fd79a8"/>
+              </linearGradient>
+            </defs>
+            <circle class="score-ring-bg" cx="80" cy="80" r="70"/>
+            <circle class="score-ring-fill" cx="80" cy="80" r="70" id="scoreRingFill"
+              style="stroke-dasharray:439.82;stroke-dashoffset:439.82"/>
+          </svg>
+          <div class="score-center">
+            <div class="score-percent" id="resultPercent">0%</div>
+            <div class="score-label">Score</div>
+          </div>
+        </div>
+
+        <div class="score-message" id="scoreMessage">Calculating...</div>
+        <div class="score-sub" id="scoreSub"></div>
+
+        <div class="results-breakdown">
+          <div class="glass-card breakdown-item">
+            <div class="breakdown-value" style="color:var(--success)" id="resultScore">0</div>
+            <div class="breakdown-label">Correct</div>
+          </div>
+          <div class="glass-card breakdown-item">
+            <div class="breakdown-value" style="color:var(--danger)" id="resultWrong">—</div>
+            <div class="breakdown-label">Wrong</div>
+          </div>
+          <div class="glass-card breakdown-item">
+            <div class="breakdown-value" style="color:var(--accent2)" id="resultTime">0:00</div>
+            <div class="breakdown-label">Time</div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:center;gap:12px;margin-bottom:40px;flex-wrap:wrap">
+          <a href="topics.html" class="btn btn-primary btn-lg">🔁 Try Another Topic</a>
+          <a href="dashboard.html" class="btn btn-ghost btn-lg">🏠 Dashboard</a>
+        </div>
+
+        <!-- Wrong Answers Review -->
+        <div id="wrongAnswers"></div>
+      </div>
+    </div>
+
+    <!-- History Section -->
+    <div style="margin-top:48px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <h2 class="section-title" style="font-size:1.3rem">All <span>History</span></h2>
+        <button class="btn btn-ghost btn-sm" onclick="clearHistory()" style="color:var(--danger)">🗑 Clear History</button>
+      </div>
+      <div id="resultsHistory"></div>
+    </div>
+  </main>
+</div>
+
+<script src="js/questions.js"></script>
+<script src="js/script.js"></script>
+<script>
+// Compute wrong count after result loads
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    const last = JSON.parse(sessionStorage.getItem('sip_last_result') || 'null');
+    if (last) {
+      const wrong = last.total - last.score;
+      const el = document.getElementById('resultWrong');
+      if (el) el.textContent = wrong;
+    }
+  }, 300);
+});
+</script>
+</body>
+</html>

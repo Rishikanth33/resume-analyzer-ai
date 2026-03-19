@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — SIP Portal</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="dashboard">
+<div class="bg-mesh"></div><div class="bg-dots"></div>
+
+<nav class="navbar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="menu-btn" id="menuBtn">☰</button>
+    <a href="index.html" class="nav-brand">SIP<span>Portal</span></a>
+  </div>
+  <div class="nav-links">
+    <a href="topics.html" class="nav-link">Practice</a>
+    <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
+  </div>
+</nav>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">U</div>
+      <div class="sidebar-username">Loading...</div>
+      <div class="sidebar-role">Interview Candidate</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Main</div>
+      <a href="dashboard.html" class="sidebar-link active"><div class="icon">🏠</div>Dashboard</a>
+      <a href="topics.html" class="sidebar-link"><div class="icon">📚</div>Topics</a>
+      <a href="results.html" class="sidebar-link"><div class="icon">📊</div>My Results</a>
+      <div class="sidebar-section">Topics</div>
+      <a href="quiz.html?topic=html&mode=interview" class="sidebar-link"><div class="icon">🌐</div>HTML</a>
+      <a href="quiz.html?topic=css&mode=interview" class="sidebar-link"><div class="icon">🎨</div>CSS</a>
+      <a href="quiz.html?topic=javascript&mode=interview" class="sidebar-link"><div class="icon">⚡</div>JavaScript</a>
+      <a href="quiz.html?topic=dsa&mode=interview" class="sidebar-link"><div class="icon">🌳</div>Data Structures</a>
+      <a href="quiz.html?topic=aptitude&mode=interview" class="sidebar-link"><div class="icon">🧠</div>Aptitude</a>
+      <a href="quiz.html?topic=hr&mode=interview" class="sidebar-link"><div class="icon">👔</div>HR Interview</a>
+      <div class="sidebar-section">Account</div>
+      <div class="sidebar-link" onclick="logout()"><div class="icon">🚪</div>Sign Out</div>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="section-header fade-up">
+      <h1 class="section-title">Welcome back, <span id="dashWelcomeName">there</span>! 👋</h1>
+      <p class="section-subtitle">Ready to crush your next interview? Let's keep the momentum going.</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="glass-card stat-card blue fade-up">
+        <div class="stat-icon blue">🎯</div>
+        <div class="stat-value" id="dashTotalQuizzes">0</div>
+        <div class="stat-label">Quizzes Taken</div>
+      </div>
+      <div class="glass-card stat-card pink fade-up">
+        <div class="stat-icon pink">📈</div>
+        <div class="stat-value" id="dashAvgScore">0%</div>
+        <div class="stat-label">Average Score</div>
+      </div>
+      <div class="glass-card stat-card teal fade-up">
+        <div class="stat-icon teal">🏆</div>
+        <div class="stat-value" id="dashBestScore">0%</div>
+        <div class="stat-label">Best Score</div>
+      </div>
+      <div class="glass-card stat-card yellow fade-up">
+        <div class="stat-icon yellow">📚</div>
+        <div class="stat-value" id="dashTopicsCount">6</div>
+        <div class="stat-label">Topics Available</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px" class="dash-grid">
+      <div class="glass-card" style="padding:28px">
+        <h3 style="font-size:1rem;margin-bottom:20px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-size:0.8rem">Recent Activity</h3>
+        <div id="recentActivity"></div>
+        <div style="margin-top:16px">
+          <a href="results.html" class="btn btn-ghost btn-sm" style="width:100%;justify-content:center">View All Results →</a>
+        </div>
+      </div>
+      <div class="glass-card" style="padding:28px">
+        <h3 style="font-size:0.8rem;margin-bottom:20px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Topic Progress</h3>
+        <div id="topicProgress"></div>
+      </div>
+    </div>
+
+    <div class="glass-card" style="padding:28px">
+      <h3 style="font-size:0.8rem;margin-bottom:20px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Quick Start</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:12px">
+        <a href="quiz.html?topic=javascript&mode=quiz" class="btn btn-primary">⚡ JS Quiz</a>
+        <a href="quiz.html?topic=html&mode=quiz" class="btn btn-ghost">🌐 HTML Quiz</a>
+        <a href="quiz.html?topic=dsa&mode=quiz" class="btn btn-ghost">🌳 DSA Quiz</a>
+        <a href="quiz.html?topic=hr&mode=interview" class="btn btn-ghost">👔 HR Study</a>
+        <a href="topics.html" class="btn btn-accent">📚 All Topics →</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/questions.js"></script>
+<script src="js/script.js"></script>
+<style>
+@media(max-width:700px){.dash-grid{grid-template-columns:1fr!important}}
+</style>
+</body>
+</html>

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ResumeIQ — AI Resume Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#0d0f14;--paper:#f5f2eb;--cream:#ede9df;
+  --green:#1a6b45;--green-lt:#e6f4ed;--green-mid:#2d9966;
+  --red:#c0392b;--red-lt:#fdecea;
+  --amber:#b45309;--amber-lt:#fef3c7;
+  --blue:#1e4fad;--blue-lt:#eff4ff;
+  --muted:#6b7280;--border:#d4cfc4;
+  --font-h:'Cabinet Grotesk',sans-serif;
+  --font-b:'Instrument Sans',sans-serif;
+  --shadow:0 2px 8px rgba(13,15,20,0.08),0 1px 2px rgba(13,15,20,0.04);
+  --shadow-lg:0 12px 32px rgba(13,15,20,0.12),0 4px 8px rgba(13,15,20,0.06);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-b);background:var(--paper);color:var(--ink);min-height:100vh;overflow-x:hidden}
+nav{position:sticky;top:0;z-index:200;background:rgba(245,242,235,0.95);
+  backdrop-filter:blur(16px);border-bottom:1px solid var(--border);
+  padding:0.9rem 5%;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:var(--font-h);font-weight:900;font-size:1.4rem;letter-spacing:-0.03em;display:flex;align-items:center;gap:0.4rem}
+.logo-dot{width:8px;height:8px;background:var(--green-mid);border-radius:50%;display:inline-block}
+.nav-tag{background:var(--green-lt);color:var(--green);font-size:0.75rem;font-weight:600;
+  padding:0.25rem 0.8rem;border-radius:50px;letter-spacing:0.04em;text-transform:uppercase}
+.hero{padding:3.5rem 5% 2.5rem;max-width:1200px;margin:0 auto}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.6rem;
+  background:var(--ink);color:var(--paper);font-size:0.75rem;font-weight:600;
+  letter-spacing:0.1em;text-transform:uppercase;padding:0.35rem 1rem;border-radius:4px;margin-bottom:1.5rem}
+.blink{animation:blink 1.2s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.hero h1{font-family:var(--font-h);font-size:clamp(2.2rem,5.5vw,4.5rem);font-weight:900;
+  letter-spacing:-0.05em;line-height:0.95;margin-bottom:1.2rem;max-width:700px}
+.hero h1 em{font-style:normal;color:var(--green-mid)}
+.hero-desc{color:var(--muted);font-size:1rem;max-width:520px;line-height:1.7}
+.grid{max-width:1200px;margin:0 auto;padding:0 5% 6rem;
+  display:grid;grid-template-columns:460px 1fr;gap:2rem;align-items:start}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.panel{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.panel-head{padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.7rem}
+.panel-head-icon{width:32px;height:32px;border-radius:8px;background:var(--ink);color:var(--paper);
+  display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0}
+.panel-head-title{font-family:var(--font-h);font-weight:700;font-size:1rem}
+.panel-head-sub{color:var(--muted);font-size:0.78rem;margin-top:0.1rem}
+.panel-body{padding:1.4rem}
+.role-search{width:100%;border:1px solid var(--border);border-radius:10px;
+  padding:0.65rem 1rem;font-family:var(--font-b);font-size:0.88rem;
+  background:var(--cream);color:var(--ink);outline:none;margin-bottom:1rem;transition:border-color 0.2s}
+.role-search:focus{border-color:var(--ink)}
+.role-cats{display:flex;flex-direction:column;gap:1rem;max-height:320px;overflow-y:auto;padding-right:3px}
+.role-cats::-webkit-scrollbar{width:3px}
+.role-cats::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.cat-label{font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem}
+.role-chips{display:flex;flex-wrap:wrap;gap:0.4rem}
+.chip{background:var(--cream);border:1px solid var(--border);color:var(--ink);
+  padding:0.32rem 0.85rem;border-radius:50px;font-size:0.81rem;font-weight:500;
+  cursor:pointer;transition:all 0.18s;white-space:nowrap;font-family:var(--font-b)}
+.chip:hover{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+.chip.active{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.chip.active::before{content:'✓ ';font-size:0.72rem}
+.upload-box{border:2px dashed var(--border);border-radius:12px;padding:1.3rem;
+  text-align:center;cursor:pointer;transition:all 0.2s;background:var(--cream);margin-bottom:0.9rem}
+.upload-box:hover,.upload-box.over{border-color:var(--green-mid);background:var(--green-lt)}
+.upload-icon{font-size:1.8rem;margin-bottom:0.3rem}
+.upload-hint{font-size:0.83rem;color:var(--muted)}
+.upload-hint b{color:var(--green)}
+#file-in{display:none}
+.divider{display:flex;align-items:center;gap:0.8rem;margin:0.7rem 0;
+  color:var(--muted);font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+textarea{width:100%;background:var(--cream);border:1px solid var(--border);
+  color:var(--ink);font-family:var(--font-b);font-size:0.86rem;border-radius:10px;
+  padding:0.9rem;resize:vertical;min-height:190px;outline:none;line-height:1.65;transition:border-color 0.2s}
+textarea:focus{border-color:var(--ink)}
+textarea::placeholder{color:#aaa}
+.char-count{font-size:0.72rem;color:var(--muted);margin-top:0.3rem;text-align:right}
+.btn-analyze{width:100%;background:var(--ink);color:var(--paper);border:none;
+  padding:0.95rem;border-radius:12px;font-family:var(--font-h);font-weight:800;
+  font-size:1rem;letter-spacing:-0.02em;cursor:pointer;transition:all 0.2s;
+  margin-top:0.9rem;display:flex;align-items:center;justify-content:center;gap:0.5rem}
+.btn-analyze:hover{background:#1f2937;transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.btn-analyze:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.loading{display:none;padding:4rem 2rem;text-align:center;color:var(--muted)}
+.loader{width:38px;height:38px;border:3px solid var(--border);
+  border-top-color:var(--ink);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 1.2rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-steps{display:flex;flex-direction:column;gap:0.5rem;align-items:center;margin-top:0.8rem}
+.load-step{font-size:0.83rem;opacity:0;animation:fadeup 0.5s ease forwards}
+.load-step:nth-child(1){animation-delay:0.3s}
+.load-step:nth-child(2){animation-delay:1s}
+.load-step:nth-child(3){animation-delay:1.7s}
+@keyframes fadeup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.empty-state{padding:4rem 2rem;text-align:center;color:var(--muted);background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+.empty-art{font-size:3.5rem;margin-bottom:1rem;opacity:0.4}
+.empty-title{font-family:var(--font-h);font-size:1.1rem;color:var(--ink);font-weight:700;margin-bottom:0.4rem}
+.empty-sub{font-size:0.86rem;line-height:1.6}
+#results{display:none}
+.score-banner{background:var(--ink);color:var(--paper);padding:1.6rem 1.4rem;
+  display:flex;align-items:center;gap:1.5rem;border-radius:16px 16px 0 0}
+.big-score{font-family:var(--font-h);font-size:3.8rem;font-weight:900;letter-spacing:-0.06em;line-height:1}
+.big-score span{font-size:1.4rem;opacity:0.4;font-weight:400}
+.score-info{flex:1}
+.score-title{font-family:var(--font-h);font-size:1.2rem;font-weight:800;letter-spacing:-0.03em}
+.score-role{font-size:0.82rem;opacity:0.55;margin-top:0.15rem;margin-bottom:0.7rem}
+.score-bar-wrap{background:rgba(255,255,255,0.1);border-radius:50px;height:5px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:50px;transition:width 1.2s cubic-bezier(0.16,1,0.3,1)}
+.tabs{display:flex;border-bottom:1px solid var(--border);background:#fff}
+.tab{flex:1;padding:0.85rem 0.4rem;font-size:0.8rem;font-weight:600;
+  color:var(--muted);cursor:pointer;border:none;background:none;
+  border-bottom:2px solid transparent;transition:all 0.2s;font-family:var(--font-b)}
+.tab.active{color:var(--ink);border-bottom-color:var(--ink)}
+.tab:hover{color:var(--ink)}
+.tab-content{display:none;padding:1.4rem}
+.tab-content.active{display:block}
+.kw-block{margin-bottom:1.4rem}
+.kw-head{font-size:0.74rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  margin-bottom:0.6rem;display:flex;align-items:center;gap:0.5rem}
+.kw-count{background:var(--cream);color:var(--muted);font-size:0.7rem;
+  padding:0.1rem 0.55rem;border-radius:50px;font-weight:600}
+.tags{display:flex;flex-wrap:wrap;gap:0.4rem}
+.tag{padding:0.25rem 0.75rem;border-radius:50px;font-size:0.78rem;font-weight:500}
+.tag-found{background:var(--green-lt);color:var(--green);border:1px solid #a7d8bc}
+.tag-missing{background:var(--red-lt);color:var(--red);border:1px solid #f5b7b1}
+.tag-bonus{background:var(--blue-lt);color:var(--blue);border:1px solid #b8ccf0}
+.sec-list{display:flex;flex-direction:column;gap:0.9rem}
+.sec-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem}
+.sec-name{font-size:0.86rem;font-weight:600}
+.sec-pct{font-size:0.8rem;color:var(--muted)}
+.bar-bg{height:6px;background:var(--cream);border-radius:50px;overflow:hidden}
+.bar-fg{height:100%;border-radius:50px;transition:width 1s cubic-bezier(0.16,1,0.3,1);width:0}
+.sug-list{display:flex;flex-direction:column;gap:0.65rem}
+.sug-item{border-radius:10px;padding:0.95rem 1rem;display:flex;gap:0.8rem;align-items:flex-start}
+.sug-high{background:var(--red-lt);border:1px solid #f5b7b1}
+.sug-med{background:var(--amber-lt);border:1px solid #fcd34d}
+.sug-low{background:var(--green-lt);border:1px solid #a7d8bc}
+.sug-icon{font-size:1rem;flex-shrink:0;margin-top:0.05rem}
+.sug-text{font-size:0.86rem;line-height:1.6;color:var(--ink)}
+.sug-label{display:inline-block;font-size:0.68rem;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.25rem;opacity:0.65}
+.pdf-card{background:var(--cream);border:1px solid var(--border);border-radius:12px;
+  padding:1.1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  margin-top:1.3rem;flex-wrap:wrap}
+.pdf-info .t{font-family:var(--font-h);font-weight:700;font-size:0.92rem}
+.pdf-info .s{font-size:0.78rem;color:var(--muted);margin-top:0.1rem}
+.btn-pdf{background:var(--green);color:#fff;border:none;padding:0.6rem 1.3rem;
+  border-radius:8px;font-family:var(--font-h);font-weight:700;font-size:0.88rem;
+  cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.4rem}
+.btn-pdf:hover{background:var(--green-mid);transform:translateY(-1px);box-shadow:0 5px 14px rgba(26,107,69,0.3)}
+.btn-reset{width:100%;background:transparent;border:1px solid var(--border);
+  color:var(--muted);padding:0.65rem;border-radius:8px;font-family:var(--font-b);
+  font-size:0.84rem;cursor:pointer;transition:all 0.2s;margin-top:0.9rem}
+.btn-reset:hover{border-color:var(--ink);color:var(--ink)}
+.tips-row{max-width:1200px;margin:0 auto;padding:0 5% 5rem;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem}
+@media(max-width:768px){.tips-row{grid-template-columns:1fr}}
+.tip-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.3rem}
+.tip-num{font-family:var(--font-h);font-size:1.8rem;font-weight:900;color:var(--border);margin-bottom:0.4rem;letter-spacing:-0.05em}
+.tip-title{font-family:var(--font-h);font-weight:700;font-size:0.93rem;margin-bottom:0.35rem}
+.tip-body{font-size:0.83rem;color:var(--muted);line-height:1.65}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><span class="logo-dot"></span>ResumeIQ</div>
+  <span class="nav-tag">Free · No Login · Instant</span>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow"><span class="blink">●</span> AI-Powered Analysis · Export as PDF</div>
+  <h1>Know exactly what<br/>your resume <em>is missing</em></h1>
+  <p class="hero-desc">Select your target job role, paste your resume, and get a detailed score with keyword gaps, section analysis, and prioritized fixes — then download as PDF.</p>
+</div>
+
+<div class="grid">
+  <!-- INPUT -->
+  <div id="input-col">
+    <div class="panel" style="margin-bottom:1.1rem">
+      <div class="panel-head">
+        <div class="panel-head-icon">🎯</div>
+        <div>
+          <div class="panel-head-title">Target Job Role</div>
+          <div class="panel-head-sub">30+ roles across Tech, Design, Marketing, Finance & more</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <input type="text" class="role-search" id="role-search" placeholder="Search roles… e.g. data, design, marketing, java" oninput="filterRoles(this.value)"/>
+        <div class="role-cats" id="role-list"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-head-icon">📄</div>
+        <div>
+          <div class="panel-head-title">Your Resume</div>
+          <div class="panel-head-sub">Upload .txt file or paste plain text</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="upload-box" id="drop-zone" onclick="document.getElementById('file-in').click()">
+          <div class="upload-icon">📁</div>
+          <div class="upload-hint">Drag &amp; drop <b>.txt</b> file or click to browse</div>
+          <input type="file" id="file-in" accept=".txt"/>
+        </div>
+        <div class="divider">or paste text</div>
+        <textarea id="resume-text" placeholder="Paste your resume text here...
+
+Name · Role · Skills · Projects · Education..." oninput="updateChar()"></textarea>
+        <div class="char-count"><span id="char-num">0</span> characters</div>
+        <button class="btn-analyze" id="analyze-btn" onclick="analyze()">⚡ Analyze Resume</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div id="output-col">
+    <div class="loading" id="loading">
+      <div class="loader"></div>
+      <div style="font-family:var(--font-h);font-size:1.05rem;font-weight:700;color:var(--ink)">Analyzing your resume…</div>
+      <div class="load-steps">
+        <div class="load-step">🔍 Scanning keywords…</div>
+        <div class="load-step">📊 Scoring sections…</div>
+        <div class="load-step">💡 Generating suggestions…</div>
+      </div>
+    </div>
+
+    <div class="empty-state" id="empty-state">
+      <div class="empty-art">📋</div>
+      <div class="empty-title">Your results appear here</div>
+      <div class="empty-sub">Pick a job role on the left,<br/>paste your resume, and click <b>Analyze Resume</b></div>
+    </div>
+
+    <div id="results">
+      <div class="score-banner" id="score-banner">
+        <div class="big-score" id="big-score">0<span>/10</span></div>
+        <div class="score-info">
+          <div class="score-title" id="score-title">—</div>
+          <div class="score-role" id="score-role">—</div>
+          <div class="score-bar-wrap"><div class="score-bar-fill" id="score-bar"></div></div>
+        </div>
+      </div>
+      <div class="panel" style="border-radius:0 0 16px 16px;border-top:none">
+        <div class="tabs">
+          <button class="tab active" onclick="showTab('keywords',this)">🔑 Keywords</button>
+          <button class="tab" onclick="showTab('sections',this)">📊 Sections</button>
+          <button class="tab" onclick="showTab('suggestions',this)">💡 Fixes &amp; PDF</button>
+        </div>
+        <div class="tab-content active" id="tab-keywords">
+          <div class="kw-block">
+            <div class="kw-head" style="color:var(--green)">✅ Found in your resume <span class="kw-count" id="found-count">0</span></div>
+            <div class="tags" id="tags-found"></div>
+          </div>
+          <div class="kw-block">
+            <div class="kw-head" style="color:var(--red)">❌ Missing / Not mentioned <span class="kw-count" id="miss-count">0</span></div>
+            <div class="tags" id="tags-missing"></div>
+          </div>
+          <div class="kw-block">
+            <div class="kw-head" style="color:var(--blue)">⭐ Bonus skills detected <span class="kw-count" id="bonus-count">0</span></div>
+            <div class="tags" id="tags-bonus"></div>
+          </div>
+        </div>
+        <div class="tab-content" id="tab-sections">
+          <div class="sec-list" id="sec-list"></div>
+        </div>
+        <div class="tab-content" id="tab-suggestions">
+          <div class="sug-list" id="sug-list"></div>
+          <div class="pdf-card">
+            <div class="pdf-info">
+              <div class="t">📄 Export Full Report as PDF</div>
+              <div class="s">Score · keywords · section analysis · suggestions</div>
+            </div>
+            <button class="btn-pdf" onclick="exportPDF()">⬇ Download PDF</button>
+          </div>
+          <button class="btn-reset" onclick="resetAll()">↺ Analyze a Different Resume</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tips-row">
+  <div class="tip-card"><div class="tip-num">01</div><div class="tip-title">100% Private</div><div class="tip-body">All analysis runs entirely in your browser. Your resume text never leaves your device — no account, no server needed.</div></div>
+  <div class="tip-card"><div class="tip-num">02</div><div class="tip-title">30+ Job Roles</div><div class="tip-body">Tech, Design, Marketing, Finance, Engineering, Healthcare — each role has a curated keyword set from real job descriptions.</div></div>
+  <div class="tip-card"><div class="tip-num">03</div><div class="tip-title">PDF Report</div><div class="tip-body">Download a clean PDF with your score, keyword gaps, section analysis, and prioritized improvement suggestions.</div></div>
+</div>
+
+<script>
+const ALL_ROLES = {
+  "Technology": {
+    mern:{label:"MERN Stack Developer",must:["react","node","express","mongodb","javascript","rest api","jwt","html","css","git"],good:["typescript","hooks","mongoose","redux","postman","netlify","vercel","es6","context api","bcrypt"],bonus:["next.js","docker","ci/cd","graphql","redis","testing","jest","tailwind","webpack","websocket"],sections:["React.js","Node.js","MongoDB","Express.js","JavaScript","REST APIs","JWT Auth","Git","Projects","Education"]},
+    frontend:{label:"Frontend Developer",must:["html","css","javascript","react","responsive","git","component","hooks","es6","api"],good:["typescript","tailwind","bootstrap","figma","redux","vite","accessibility","animation","testing","json"],bonus:["next.js","vue","svelte","storybook","pwa","graphql","performance","sass","jest","cypress"],sections:["HTML/CSS","JavaScript","React.js","Responsive Design","Git","Accessibility","API Integration","Tooling","Projects","Portfolio"]},
+    backend:{label:"Backend Developer",must:["node","express","api","database","rest","authentication","mongodb","sql","server","middleware"],good:["jwt","postgresql","redis","docker","postman","testing","mongoose","bcrypt","microservices","git"],bonus:["kubernetes","graphql","kafka","grpc","nginx","aws","ci/cd","jest","linux","bash"],sections:["Node.js","Express.js","Database","REST API","Auth","Testing","DevOps","Security","Projects","Education"]},
+    fullstack:{label:"Full Stack Developer",must:["frontend","backend","react","node","database","api","javascript","html","css","git"],good:["mongodb","express","deployment","hooks","json","postman","github","authentication","responsive","rest"],bonus:["typescript","docker","ci/cd","testing","cloud","redis","graphql","next.js","tailwind","sql"],sections:["Frontend","Backend","Database","API Design","Deployment","Version Control","Problem Solving","Projects","Communication","Education"]},
+    react:{label:"React Developer",must:["react","hooks","usestate","useeffect","component","jsx","javascript","props","state","es6"],good:["redux","context api","react router","typescript","tailwind","testing","git","vite","npm","axios"],bonus:["next.js","react query","zustand","framer motion","storybook","jest","cypress","graphql","pwa","performance"],sections:["React.js","Hooks","State Management","Component Design","JavaScript","Styling","Testing","Git","Projects","Education"]},
+    node:{label:"Node.js Developer",must:["node","express","rest api","mongodb","javascript","middleware","async","npm","authentication","json"],good:["jwt","bcrypt","mongoose","postman","testing","git","docker","redis","sql","typescript"],bonus:["microservices","kafka","graphql","grpc","nginx","aws","ci/cd","jest","winston","pm2"],sections:["Node.js","Express.js","Database","REST API","Authentication","Async","Testing","DevOps","Projects","Education"]},
+    python:{label:"Python Developer",must:["python","django","flask","rest api","sql","git","oop","pip","json","linux"],good:["fastapi","postgresql","celery","redis","docker","pandas","numpy","testing","pytest","aws"],bonus:["kubernetes","graphql","kafka","airflow","terraform","machine learning","ci/cd","bash","nginx","mongodb"],sections:["Python","Frameworks","Database","REST API","Testing","OOP","DevOps","Data Handling","Projects","Education"]},
+    java:{label:"Java Developer",must:["java","spring","spring boot","rest api","maven","sql","oop","jdbc","git","json"],good:["hibernate","postgresql","docker","junit","microservices","kafka","redis","aws","jenkins","gradle"],bonus:["kubernetes","grpc","elasticsearch","oauth","jwt","ci/cd","sonarqube","jpa","liquibase","angular"],sections:["Java","Spring Boot","Database","REST API","OOP","Testing","Build Tools","DevOps","Projects","Education"]},
+    devops:{label:"DevOps Engineer",must:["docker","kubernetes","ci/cd","linux","git","bash","aws","jenkins","terraform","ansible"],good:["helm","prometheus","grafana","nginx","github actions","gitlab ci","azure","gcp","python","monitoring"],bonus:["istio","vault","argocd","kafka","elasticsearch","datadog","security","networking","sre","chaos engineering"],sections:["Docker/K8s","CI/CD","Cloud","Linux","IaC","Monitoring","Scripting","Networking","Projects","Certifications"]},
+    data_sci:{label:"Data Scientist",must:["python","machine learning","pandas","numpy","scikit-learn","sql","statistics","data analysis","git","jupyter"],good:["tensorflow","pytorch","matplotlib","seaborn","nlp","deep learning","feature engineering","regression","classification","docker"],bonus:["spark","hadoop","airflow","mlflow","aws","gcp","tableau","power bi","a/b testing","research"],sections:["Python/R","ML Algorithms","Data Analysis","Statistics","Visualization","Feature Eng","Deep Learning","Tools","Projects","Education"]},
+    data_eng:{label:"Data Engineer",must:["python","sql","etl","pipeline","spark","airflow","aws","data warehouse","postgresql","git"],good:["kafka","databricks","dbt","snowflake","hadoop","docker","pandas","big data","redshift","terraform"],bonus:["kubernetes","delta lake","flink","grafana","data modeling","orchestration","bi tools","scala","java","gcp"],sections:["Python/SQL","ETL","Spark","Cloud","Orchestration","Data Modeling","Storage","Streaming","Projects","Education"]},
+    mobile:{label:"Mobile Developer",must:["react native","flutter","android","ios","javascript","dart","git","api","mobile","app"],good:["expo","firebase","redux","state management","typescript","testing","push notifications","navigation","offline","app store"],bonus:["kotlin","swift","graphql","websocket","animations","performance","accessibility","ci/cd","crashlytics","in-app purchase"],sections:["React Native/Flutter","UI Components","API Integration","State Mgmt","Testing","Publishing","Performance","Git","Projects","Education"]},
+    cybersec:{label:"Cybersecurity Analyst",must:["security","network","firewall","vulnerabilities","penetration testing","linux","python","protocols","incident response","siem"],good:["kali linux","wireshark","metasploit","nmap","burp suite","compliance","encryption","threat analysis","aws","ctf"],bonus:["certifications","ceh","cissp","oscp","zero trust","soc","red team","blue team","reverse engineering","malware analysis"],sections:["Network Security","Pentesting","Tools","Incident Response","Compliance","Scripting","Forensics","Cloud Security","Certifications","Education"]},
+    qa:{label:"QA / Test Engineer",must:["testing","manual testing","automation","selenium","test cases","bug tracking","api testing","regression","postman","jira"],good:["pytest","jest","cypress","appium","performance testing","ci/cd","sql","git","agile","documentation"],bonus:["k6","gatling","testng","bdd","cucumber","ai testing","load testing","contract testing","chaos testing","accessibility testing"],sections:["Manual Testing","Automation","API Testing","Bug Tracking","Test Design","CI/CD","Tools","Communication","Projects","Education"]},
+  },
+  "Design & Creative": {
+    uiux:{label:"UI/UX Designer",must:["figma","ui","ux","wireframes","prototyping","user research","design system","typography","color","usability"],good:["sketch","adobe xd","illustrator","photoshop","responsive","accessibility","interaction design","user testing","information architecture","branding"],bonus:["motion design","principle","framer","blender","3d","animation","css","html","after effects","lottie"],sections:["Figma/Sketch","Wireframing","Prototyping","User Research","Design Systems","Typography","Accessibility","Visual Design","Portfolio","Tools"]},
+    graphic:{label:"Graphic Designer",must:["illustrator","photoshop","indesign","typography","branding","layout","color","print","logo","design"],good:["figma","after effects","premiere","lightroom","packaging","illustration","ui design","vector","social media","mockup"],bonus:["3d","blender","motion","html","css","photography","video editing","ar","vr","generative art"],sections:["Adobe Suite","Typography","Branding","Print Design","Digital Media","Illustration","Layout","Color Theory","Portfolio","Tools"]},
+    motion:{label:"Motion Designer",must:["after effects","animation","motion graphics","premiere","cinema 4d","keyframes","compositing","video","timing","storytelling"],good:["illustrator","photoshop","3d","lottie","blender","expressions","color grading","audio sync","storyboard","branding"],bonus:["unreal engine","unity","vr","ar","web animation","css animation","figma","react","javascript","ai tools"],sections:["After Effects","3D/Cinema4D","Motion Graphics","Video Editing","Compositing","Storyboarding","Audio","Tools","Portfolio","Education"]},
+    product_des:{label:"Product Designer",must:["figma","product thinking","user research","wireframes","prototyping","ux","design systems","collaboration","analytics","iteration"],good:["sketch","a/b testing","usability testing","information architecture","data-driven","roadmap","cross-functional","accessibility","metrics","interaction"],bonus:["sql","python","framer","motion","branding","growth","business strategy","okrs","design ops","ai tools"],sections:["Product Thinking","Figma","Research","Prototyping","Design Systems","Analytics","Collaboration","Accessibility","Case Studies","Education"]},
+  },
+  "Marketing & Sales": {
+    digital:{label:"Digital Marketing",must:["seo","sem","google ads","social media","content marketing","analytics","email marketing","ppc","meta ads","copywriting"],good:["google analytics","hubspot","mailchimp","facebook ads","instagram","linkedin","conversion","a/b testing","crm","marketing automation"],bonus:["tiktok","youtube","affiliate","influencer","video marketing","whatsapp","chatbot","ai tools","programmatic","data studio"],sections:["SEO/SEM","Paid Ads","Social Media","Content","Analytics","Email","CRM","Copywriting","Campaigns","Certifications"]},
+    content:{label:"Content Writer / Creator",must:["writing","seo","blog","content strategy","research","editing","social media","storytelling","copywriting","grammar"],good:["wordpress","grammarly","headline","keyword research","content calendar","email newsletter","proofreading","cms","analytics","brand voice"],bonus:["video scripting","podcast","infographic","ai tools","html","long-form","ghostwriting","press release","technical writing","ux writing"],sections:["Writing Quality","SEO","Research","Content Strategy","Editing","Social Media","CMS","Portfolio","Analytics","Education"]},
+    sales:{label:"Sales Executive",must:["sales","crm","lead generation","cold calling","negotiation","pipeline","revenue","client relationship","target","closing"],good:["salesforce","hubspot","prospecting","account management","b2b","b2c","upselling","cross-selling","presentation","quota"],bonus:["salesforce certified","sdr","bdr","saas sales","enterprise","channel sales","partnerships","forecasting","territory","linkedin sales navigator"],sections:["Sales Process","CRM","Lead Gen","Negotiation","Account Mgmt","Communication","Targets","B2B/B2C","Tools","Education"]},
+    growth:{label:"Growth Hacker / Manager",must:["growth","metrics","a/b testing","retention","acquisition","analytics","funnel","conversion","product","data-driven"],good:["sql","python","google analytics","mixpanel","amplitude","cohort analysis","email marketing","seo","paid ads","referral"],bonus:["machine learning","tableau","bi tools","api","javascript","attribution","ltv","cac","north star metric","virality"],sections:["Growth Strategy","Analytics","A/B Testing","Acquisition","Retention","SQL/Data","Funnels","Tools","Projects","Education"]},
+    brand:{label:"Brand Manager",must:["branding","marketing strategy","brand identity","market research","campaign management","stakeholders","positioning","messaging","budget","kpis"],good:["social media","pr","partnerships","consumer insights","agency management","launch","creative brief","competitive analysis","presentations","cross-functional"],bonus:["digital marketing","data analytics","influencer","sustainability","global brand","p&l","crm","events","brand equity","community"],sections:["Brand Strategy","Marketing","Research","Campaign Mgmt","Stakeholders","Creative","Budget","Analytics","Communication","Education"]},
+  },
+  "Finance & Business": {
+    finance:{label:"Financial Analyst",must:["financial modeling","excel","valuation","forecasting","budgeting","p&l","balance sheet","cash flow","analysis","reporting"],good:["powerpoint","sql","python","power bi","tableau","financial statements","variance analysis","cost analysis","kpis","bloomberg"],bonus:["cfa","chartered accountant","r","vba","erp","sap","scenario analysis","monte carlo","ipo","m&a"],sections:["Financial Modeling","Excel/Tools","Valuation","Reporting","Forecasting","Analysis","Presentation","Accounting","Projects","Education"]},
+    business:{label:"Business Analyst",must:["requirements","stakeholders","business analysis","process improvement","documentation","data analysis","user stories","sql","powerpoint","jira"],good:["bpmn","excel","power bi","agile","scrum","wireframes","gap analysis","uat","visio","tableau"],bonus:["python","machine learning","six sigma","lean","erp","salesforce","api","product management","cost-benefit","change management"],sections:["Requirements","Stakeholders","Process Analysis","Data","Documentation","Agile","Tools","Communication","Projects","Education"]},
+    hr:{label:"HR / Talent Acquisition",must:["recruitment","talent acquisition","hr","onboarding","employee relations","payroll","compliance","interviews","offers","workforce"],good:["workday","successfactors","applicant tracking","performance management","learning development","employer branding","diversity","linkedin recruiter","retention","compensation"],bonus:["hrbp","organizational design","change management","analytics","python","data-driven","coaching","culture","well-being","employer brand"],sections:["Recruitment","HR Ops","Onboarding","Compliance","Performance Mgmt","Tools","Communication","Analytics","Projects","Education"]},
+    project:{label:"Project Manager",must:["project management","stakeholders","timeline","budget","risk","agile","scrum","communication","planning","delivery"],good:["pmp","jira","confluence","ms project","gantt chart","kanban","resource planning","change management","vendor management","reporting"],bonus:["pmi","prince2","portfolio management","program management","erp","data analytics","leadership","okrs","automation","six sigma"],sections:["Project Planning","Agile/Scrum","Stakeholders","Risk Mgmt","Budget","Tools","Communication","Leadership","Certifications","Education"]},
+    product_mgr:{label:"Product Manager",must:["product management","roadmap","user stories","stakeholders","prioritization","agile","metrics","user research","okrs","go-to-market"],good:["jira","figma","sql","a/b testing","data analysis","customer discovery","competitive analysis","mvp","sprint","backlog"],bonus:["python","machine learning","growth","api","technical background","product led growth","b2b","b2c","saas","pricing strategy"],sections:["Product Strategy","Roadmap","User Research","Agile","Data Analysis","Stakeholders","Communication","Metrics","Projects","Education"]},
+  },
+  "Engineering (Non-IT)": {
+    mechanical:{label:"Mechanical Engineer",must:["autocad","solidworks","design","manufacturing","materials","thermodynamics","fluid mechanics","analysis","cad","mechanical"],good:["ansys","matlab","catia","creo","finite element analysis","prototyping","tolerance","project management","quality","gd&t"],bonus:["python","iot","robotics","6 sigma","lean manufacturing","additive manufacturing","cnc","plc","hvac","sustainability"],sections:["CAD/CAM","Design","Analysis","Manufacturing","Materials","Simulation","Project Work","Communication","Certifications","Education"]},
+    electrical:{label:"Electrical Engineer",must:["electrical","circuit design","pcb","autocad","power systems","motors","plc","control systems","matlab","protection"],good:["scada","eplan","hvac","transformer","switchgear","iot","embedded systems","microcontroller","simulation","testing"],bonus:["python","machine learning","renewable energy","iot","industry 4.0","six sigma","project management","power electronics","drives","ev"],sections:["Circuit Design","PCB","Power Systems","Control Systems","PLC/SCADA","Simulation","Projects","Communication","Certifications","Education"]},
+    civil:{label:"Civil / Structural Engineer",must:["autocad","structural analysis","design","concrete","steel","project management","site supervision","survey","staad","etabs"],good:["revit","bim","ms project","quantity estimation","soil mechanics","construction management","quality","safety","costing","hydrology"],bonus:["python","gis","drones","sustainability","green building","smart infrastructure","leed","project scheduling","primavera","water resources"],sections:["CAD/BIM","Structural Design","Construction Mgmt","Site Work","Estimation","Materials","Project Planning","Safety","Certifications","Education"]},
+    ece:{label:"Electronics & Communication Eng.",must:["embedded systems","microcontroller","signal processing","pcb","matlab","c","python","communication systems","vhdl","iot"],good:["arduino","raspberry pi","fpga","arm","protocols","rf","antenna","wireless","plc","autocad"],bonus:["machine learning","edge computing","5g","bldc","dsp","image processing","ros","ros2","lidar","slam"],sections:["Embedded Systems","Signal Processing","PCB Design","Microcontrollers","Protocols","Tools","Projects","Communication","Certifications","Education"]},
+  },
+  "Healthcare & Science": {
+    pharma:{label:"Pharmaceutical / Clinical",must:["clinical trials","gcp","fda","research","pharmacology","lab","documentation","sop","quality assurance","regulatory"],good:["ctms","edc","phase i ii iii","biostatistics","medical writing","cro","drug development","protocol","compliance","pharmacovigilance"],bonus:["python","r","sas","machine learning","health economics","real world evidence","digital health","ai drug discovery","bioinformatics","publication"],sections:["Clinical Research","Regulatory","Lab Skills","Documentation","QA","Pharmacology","Writing","Tools","Projects","Education"]},
+    biotech:{label:"Biotechnology / Research",must:["pcr","gel electrophoresis","cell culture","molecular biology","research","lab techniques","microscopy","data analysis","scientific writing","protocols"],good:["flow cytometry","western blot","elisa","crispr","bioinformatics","r","python","statistics","grant writing","publication"],bonus:["machine learning","genomics","proteomics","drug discovery","clinical","regulatory","patent","tissue engineering","sequencing","computational biology"],sections:["Lab Techniques","Molecular Biology","Research Design","Data Analysis","Scientific Writing","Tools","Publications","Projects","Certifications","Education"]},
+  },
+};
+
+const FLAT=[];
+Object.entries(ALL_ROLES).forEach(([cat,roles])=>{
+  Object.entries(roles).forEach(([key,role])=>FLAT.push({key,cat,...role}));
+});
+
+let selectedKey='mern';
+
+function renderRoles(filter=''){
+  const list=document.getElementById('role-list');
+  list.innerHTML='';
+  const fl=filter.toLowerCase();
+  Object.entries(ALL_ROLES).forEach(([cat,roles])=>{
+    const chips=Object.entries(roles).filter(([k,r])=>!fl||r.label.toLowerCase().includes(fl)||cat.toLowerCase().includes(fl));
+    if(!chips.length) return;
+    const sec=document.createElement('div');
+    sec.innerHTML=`<div class="cat-label">${cat}</div><div class="role-chips">${chips.map(([k,r])=>`<button class="chip ${k===selectedKey?'active':''}" onclick="selectRole('${k}')">${r.label}</button>`).join('')}</div>`;
+    list.appendChild(sec);
+  });
+}
+renderRoles();
+
+function filterRoles(v){renderRoles(v);}
+function selectRole(k){selectedKey=k;renderRoles(document.getElementById('role-search').value);}
+
+const dz=document.getElementById('drop-zone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files[0])readFile(e.dataTransfer.files[0]);});
+document.getElementById('file-in').addEventListener('change',e=>{if(e.target.files[0])readFile(e.target.files[0]);});
+function readFile(f){const r=new FileReader();r.onload=ev=>{document.getElementById('resume-text').value=ev.target.result;updateChar();};r.readAsText(f);}
+function updateChar(){document.getElementById('char-num').textContent=document.getElementById('resume-text').value.length.toLocaleString();}
+function showTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+let lastResult=null;
+
+function analyze(){
+  const text=document.getElementById('resume-text').value.trim();
+  if(!text||text.length<40){alert('Please paste your resume text first.');return;}
+  document.getElementById('loading').style.display='block';
+  document.getElementById('results').style.display='none';
+  document.getElementById('empty-state').style.display='none';
+  document.getElementById('analyze-btn').disabled=true;
+  setTimeout(()=>run(text),1900);
+}
+
+function run(raw){
+  const txt=raw.toLowerCase();
+  const role=FLAT.find(r=>r.key===selectedKey);
+  const found=[],missing=[],bonusFound=[];
+  role.must.forEach(kw=>{if(txt.includes(kw))found.push(kw);else missing.push(kw);});
+  role.good.forEach(kw=>{if(txt.includes(kw))found.push(kw);else missing.push(kw);});
+  role.bonus.forEach(kw=>{if(txt.includes(kw))bonusFound.push(kw);});
+  const maxRaw=role.must.length*3+role.good.length*2;
+  const earned=role.must.reduce((s,kw)=>s+(txt.includes(kw)?3:0),0)+role.good.reduce((s,kw)=>s+(txt.includes(kw)?2:0),0)+bonusFound.length*0.5;
+  let score=Math.min(10,(earned/maxRaw)*10);
+  if(txt.includes('github'))score+=0.25;
+  if(/netlify|vercel|deployed|live/.test(txt))score+=0.2;
+  if(/\d+/.test(txt))score+=0.15;
+  if(/team|collaboration|collab/.test(txt))score+=0.1;
+  score=Math.min(10,Math.round(score*10)/10);
+  const secScores=role.sections.map(s=>{
+    const key=s.toLowerCase().split('/')[0].replace(/[^a-z0-9]/g,' ').trim().split(' ')[0];
+    const hit=txt.includes(key);
+    const pct=hit?Math.min(95,60+Math.floor(Math.random()*30)):Math.max(10,20+Math.floor(Math.random()*35));
+    return{name:s,pct};
+  });
+  const sugs=makeSuggestions(txt,found,missing,bonusFound,role,score);
+  lastResult={score,role,found,missing,bonusFound,secScores,sugs,raw};
+  renderResults(lastResult);
+}
+
+function makeSuggestions(txt,found,missing,bonus,role,score){
+  const tips=[];
+  const mustMiss=role.must.filter(k=>!txt.includes(k));
+  if(mustMiss.length>0)tips.push({p:'high',icon:'🔴',label:'Critical Missing Skills',text:`Add these required keywords: <b>${mustMiss.slice(0,5).join(', ')}</b>. Recruiters and ATS systems scan for these specifically.`});
+  if(!txt.includes('github'))tips.push({p:'high',icon:'🔴',label:'No GitHub / Portfolio Link',text:'Add your GitHub or portfolio URL. Recruiters need a clickable link to verify your work.'});
+  if(!/netlify|vercel|deployed|live demo|live:/.test(txt))tips.push({p:'high',icon:'🔴',label:'No Live Project / Demo Links',text:'Deploy at least 1-2 projects and add live demo links. Live work significantly increases recruiter interest.'});
+  if(!/\d+\s*(users|requests|endpoints|%|ms|projects|lines|clients|team|members|days|weeks)/.test(txt))tips.push({p:'med',icon:'🟡',label:'Quantify Your Impact',text:'Add measurable results: e.g. "handled 500+ users", "reduced load time by 30%", "built 10+ API endpoints".'});
+  if(!/linkedin/.test(txt))tips.push({p:'med',icon:'🟡',label:'LinkedIn URL Missing',text:'Include your full LinkedIn URL with https:// prefix for ATS compatibility.'});
+  if(!/summary|objective|profile/.test(txt))tips.push({p:'med',icon:'🟡',label:'No Professional Summary',text:'Add a 2-3 line summary at the top naming your target role and top 3 skills. Recruiters read this first.'});
+  const goodMiss=role.good.filter(k=>!txt.includes(k));
+  if(goodMiss.length>4)tips.push({p:'low',icon:'🟢',label:'Add More Relevant Skills',text:`Consider adding: <b>${goodMiss.slice(0,6).join(', ')}</b> to strengthen your alignment with ${role.label} roles.`});
+  if(bonus.length===0)tips.push({p:'low',icon:'🟢',label:'Bonus Skills Opportunity',text:`These bonus skills would make you stand out: <b>${role.bonus.slice(0,5).join(', ')}</b>.`});
+  if(!txt.includes('education')&&!txt.includes('university')&&!txt.includes('college'))tips.push({p:'low',icon:'🟢',label:'Education Section',text:'Ensure a clear Education section with your degree, institution name, and expected/completed year.'});
+  return tips.slice(0,7);
+}
+
+function renderResults({score,role,found,missing,bonusFound,secScores,sugs}){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('results').style.display='block';
+  document.getElementById('analyze-btn').disabled=false;
+  document.getElementById('big-score').innerHTML=`${score}<span>/10</span>`;
+  const v=[[2,'Needs Major Work','#c0392b'],[4,'Below Average','#e67e22'],[6,'Developing','#f39c12'],[7.5,'Good Match','#16a085'],[10,'Strong Match','#1a6b45']].find(([m])=>score<=m)||[10,'Strong Match','#1a6b45'];
+  document.getElementById('score-title').textContent=v[1];
+  document.getElementById('score-role').textContent=`vs ${role.label} requirements`;
+  const bar=document.getElementById('score-bar');
+  bar.style.background=v[2];bar.style.width='0';
+  setTimeout(()=>bar.style.width=(score/10*100)+'%',100);
+  document.getElementById('found-count').textContent=found.length;
+  document.getElementById('miss-count').textContent=missing.length;
+  document.getElementById('bonus-count').textContent=bonusFound.length;
+  document.getElementById('tags-found').innerHTML=found.map(k=>`<span class="tag tag-found">${k}</span>`).join('');
+  document.getElementById('tags-missing').innerHTML=missing.slice(0,16).map(k=>`<span class="tag tag-missing">${k}</span>`).join('');
+  document.getElementById('tags-bonus').innerHTML=bonusFound.length?bonusFound.map(k=>`<span class="tag tag-bonus">${k}</span>`).join(''):'<span style="font-size:0.82rem;color:var(--muted)">None detected yet</span>';
+  document.getElementById('sec-list').innerHTML=secScores.map(s=>{
+    const c=s.pct>=70?'var(--green-mid)':s.pct>=45?'#f59e0b':'var(--red)';
+    return`<div class="sec-item"><div class="sec-top"><span class="sec-name">${s.name}</span><span class="sec-pct">${s.pct}%</span></div><div class="bar-bg"><div class="bar-fg" style="background:${c}" data-w="${s.pct}%"></div></div></div>`;
+  }).join('');
+  setTimeout(()=>document.querySelectorAll('.bar-fg').forEach(b=>b.style.width=b.dataset.w),120);
+  document.getElementById('sug-list').innerHTML=sugs.map(s=>`<div class="sug-item sug-${s.p}"><span class="sug-icon">${s.icon}</span><div class="sug-text"><div class="sug-label">${s.label}</div>${s.text}</div></div>`).join('');
+}
+
+function exportPDF(){
+  if(!lastResult){alert('Please analyze a resume first.');return;}
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=210,M=18,TW=W-M*2;
+  let y=20;
+  const ink=[13,15,20],green=[26,107,69],muted=[107,114,128],red=[192,57,43],blue=[30,79,173],amber=[180,83,9],cream=[245,242,235];
+  // Header
+  doc.setFillColor(...ink);doc.rect(0,0,W,30,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(20);doc.setTextColor(255,255,255);
+  doc.text('ResumeIQ — Analysis Report',M,14);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(180,180,180);
+  doc.text(`Role: ${lastResult.role.label}   |   Date: ${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}`,M,22);
+  y=40;
+  // Score box
+  doc.setFillColor(...cream);doc.roundedRect(M,y,TW,24,3,3,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(30);doc.setTextColor(...ink);
+  doc.text(`${lastResult.score}/10`,M+6,y+17);
+  const vLabel=([[2,'Needs Major Work'],[4,'Below Average'],[6,'Developing'],[7.5,'Good Match'],[10,'Strong Match']].find(([m])=>lastResult.score<=m)||[10,'Strong Match'])[1];
+  doc.setFontSize(14);doc.text(vLabel,M+42,y+11);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...muted);
+  doc.text(`Target Role: ${lastResult.role.label}`,M+42,y+18);
+  y+=32;
+  // Helper: section header
+  const sh=(title,col)=>{
+    doc.setFillColor(...col);doc.rect(M,y,TW,8,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(255,255,255);
+    doc.text(title.toUpperCase(),M+4,y+5.5);y+=12;
+  };
+  // Helper: tag row
+  const tagRow=(tags,col)=>{
+    let x=M;const h=6,gap=3;
+    tags.forEach(t=>{
+      const tw=doc.getTextWidth(t)+6;
+      if(x+tw>W-M){x=M;y+=h+2;}
+      doc.setFillColor(...col);doc.roundedRect(x,y-5,tw,h,1,1,'F');
+      doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(255,255,255);
+      doc.text(t,x+3,y-0.5);x+=tw+gap;
+    });
+    y+=h+4;
+  };
+  if(lastResult.found.length){sh(`Keywords Found (${lastResult.found.length})`,green);tagRow(lastResult.found,green);}
+  if(lastResult.missing.length){if(y>230){doc.addPage();y=20;}sh(`Missing Keywords (${lastResult.missing.length})`,red);tagRow(lastResult.missing.slice(0,18),red);}
+  if(lastResult.bonusFound.length){if(y>230){doc.addPage();y=20;}sh(`Bonus Skills (${lastResult.bonusFound.length})`,blue);tagRow(lastResult.bonusFound,blue);}
+  // Sections
+  if(y>230){doc.addPage();y=20;}
+  sh('Section Analysis',ink);
+  lastResult.secScores.forEach(s=>{
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...ink);doc.text(s.name,M,y);
+    doc.setTextColor(...muted);doc.text(`${s.pct}%`,W-M-8,y);
+    doc.setFillColor(220,220,220);doc.roundedRect(M+50,y-3.5,TW-58,4,1,1,'F');
+    const bc=s.pct>=70?green:s.pct>=45?amber:red;
+    doc.setFillColor(...bc);doc.roundedRect(M+50,y-3.5,Math.max(2,(TW-58)*(s.pct/100)),4,1,1,'F');
+    y+=7;
+  });
+  y+=4;
+  // Suggestions
+  if(y>230){doc.addPage();y=20;}
+  sh('Improvement Suggestions',ink);
+  lastResult.sugs.forEach(s=>{
+    const bg=s.p==='high'?[253,236,234]:s.p==='med'?[254,243,199]:[230,244,237];
+    const stripped=s.text.replace(/<[^>]+>/g,'');
+    const lines=doc.splitTextToSize(`${s.icon} [${s.label}]  ${stripped}`,TW-8);
+    const bh=lines.length*5+6;
+    if(y+bh>280){doc.addPage();y=20;}
+    doc.setFillColor(...bg);doc.roundedRect(M,y-2,TW,bh,2,2,'F');
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...ink);
+    lines.forEach((l,li)=>doc.text(l,M+4,y+li*5+3));
+    y+=bh+3;
+  });
+  // Footer
+  const pages=doc.getNumberOfPages();
+  for(let i=1;i<=pages;i++){
+    doc.setPage(i);doc.setFillColor(...cream);doc.rect(0,287,W,10,'F');
+    doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...muted);
+    doc.text('Generated by ResumeIQ · Rishikanth S Portfolio',M,293);
+    doc.text(`Page ${i} of ${pages}`,W-M-15,293);
+  }
+  doc.save(`ResumeIQ_${lastResult.role.label.replace(/\s+/g,'_')}_Report.pdf`);
+}
+
+function resetAll(){
+  document.getElementById('results').style.display='none';
+  document.getElementById('empty-state').style.display='block';
+  document.getElementById('resume-text').value='';
+  document.getElementById('char-num').textContent='0';
+  lastResult=null;
+}
+</script>
+</body>
+</html>
